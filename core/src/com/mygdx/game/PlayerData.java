@@ -3,6 +3,7 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.Map;
@@ -11,7 +12,7 @@ import java.util.Map;
  * Created by Danel on 12/30/17.
  */
 
-public class Player extends Sprite {
+public class PlayerData extends Sprite {
     public int health;
 
     public Vector2 velocity;
@@ -39,8 +40,8 @@ public class Player extends Sprite {
     Map map;
 
 
-    public Player(){
-
+    public PlayerData(TextureRegion region){
+        super(region);
     }
 
     public void update(float deltaTime){
@@ -53,6 +54,10 @@ public class Player extends Sprite {
         velocity.x*=DAMP;
         if (velocity.x > MAX_VEL) velocity.x = MAX_VEL;
         if (velocity.x < -MAX_VEL) velocity.x = -MAX_VEL;
+
+        velocity.scl(deltaTime);
+        tryMove();
+        velocity.scl(1/deltaTime);
     }
 
     private void handleInputs(){

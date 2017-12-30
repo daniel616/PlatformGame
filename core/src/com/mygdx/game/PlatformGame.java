@@ -9,6 +9,6 @@ import com.badlogic.gdx.Game;
 public class PlatformGame extends Game {
     @Override
     public void create() {
-        setScreen(new Lvl1Screen());
+        setScreen(new Level1());
     }
 }
