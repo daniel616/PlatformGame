@@ -22,7 +22,7 @@ public class GameLevel {
      */
     private TiledMap map;
     private PlayerData player;
-    private Sprite goal;
+    private Array<Sprite> spriteArray;
     private TextureAtlas atlas;
 
     /**could put this in constrcutor**/
@@ -33,7 +33,7 @@ public class GameLevel {
     }
 
     public Array<Rectangle> getTerrain(){
-        MapObjects terrain=map.getLayers().get("collisionObjects").getObjects();
+        MapObjects terrain=map.getLayers().get("collisionTerrain").getObjects();
         Array<Rectangle> terrainArray=new Array<Rectangle>();
         for(MapObject object: terrain){
             terrainArray.add(((RectangleMapObject)object).getRectangle());
@@ -53,18 +53,10 @@ public class GameLevel {
         // Load entities
         System.out.println("Searching for game entities...\n");
 
-        MapObjects objects = map.getLayers().get("objects").getObjects();
-        for(int i=0; i<10;i++){
-            try{
-                System.out.println("layername" + map.getLayers().get(i).getName());
-            }
-            catch (Exception e){
-
-            }
-        }
+        MapObjects special = map.getLayers().get("special").getObjects();
 
 
-        for (MapObject object : objects) {
+        for (MapObject object : special) {
             String name = object.getName();
             String[] parts = name.split("[.]");
             RectangleMapObject rectangleObject = (RectangleMapObject)object;
@@ -80,10 +72,6 @@ public class GameLevel {
                 player = new PlayerData(atlas.findRegion("male/Attack (6)"),this);
                 player.setPosition(rectangle.x, rectangle.y);
             }
-            else if (parts.length > 0 && parts[0].equals("trigger")) {
-                goal = new Sprite(atlas.findRegion("female/Attack (6)"));
-                goal.setPosition(rectangle.x,rectangle.y);
-            }
         }
     }
 
@@ -92,9 +80,8 @@ public class GameLevel {
     }
 
     public LevelRenderer generateRenderer(){
-        Array<Sprite> spriteArray=new Array<Sprite>();
+        spriteArray=new Array<Sprite>();
         spriteArray.add(player);
-        spriteArray.add(goal);
         return new LevelRenderer(map,spriteArray);
     }
 

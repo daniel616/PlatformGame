@@ -3,11 +3,13 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -36,7 +38,10 @@ public class LevelRenderer {
         renderer.render();
 
         batch.begin();
+        batch.setProjectionMatrix(camera.combined);
         for(Sprite sprite: spriteArray){
+            Rectangle r =sprite.getBoundingRectangle();
+            batch.draw(new Texture("data/mininicular (1).png"),r.getX(),r.getY(),r.getWidth(),r.getHeight());
             sprite.draw(batch);
         }
         batch.end();
