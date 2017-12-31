@@ -27,12 +27,19 @@ public class GameLevel {
 
     /**could put this in constrcutor**/
     public GameLevel(String mapFileLocation){
-
         map=new TmxMapLoader().load(mapFileLocation);
         atlas= new TextureAtlas(Gdx.files.internal("data/zombies.txt"));
         processMapMetadata();
+    }
 
-
+    public Array<Rectangle> getTerrain(){
+        MapObjects terrain=map.getLayers().get("collisionObjects").getObjects();
+        Array<Rectangle> terrainArray=new Array<Rectangle>();
+        for(MapObject object: terrain){
+            terrainArray.add(((RectangleMapObject)object).getRectangle());
+        }
+        System.out.println("terrainArray size"+terrainArray.size);
+        return terrainArray;
     }
 
     private void processMapMetadata() {
@@ -47,6 +54,14 @@ public class GameLevel {
         System.out.println("Searching for game entities...\n");
 
         MapObjects objects = map.getLayers().get("objects").getObjects();
+        for(int i=0; i<10;i++){
+            try{
+                System.out.println("layername" + map.getLayers().get(i).getName());
+            }
+            catch (Exception e){
+
+            }
+        }
 
 
         for (MapObject object : objects) {
@@ -62,7 +77,7 @@ public class GameLevel {
 
 
             if (name.equals("player")) {
-                player = new PlayerData(atlas.findRegion("male/Attack (6)"));
+                player = new PlayerData(atlas.findRegion("male/Attack (6)"),this);
                 player.setPosition(rectangle.x, rectangle.y);
             }
             else if (parts.length > 0 && parts[0].equals("trigger")) {
@@ -73,8 +88,7 @@ public class GameLevel {
     }
 
     public void update(float deltaTime){
-        //player.update(deltaTime);
-
+        player.update(deltaTime);
     }
 
     public LevelRenderer generateRenderer(){

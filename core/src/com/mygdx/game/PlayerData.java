@@ -4,9 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-
-import java.util.Map;
+import com.badlogic.gdx.utils.Array;
 
 /**
  * Created by Danel on 12/30/17.
@@ -15,8 +15,7 @@ import java.util.Map;
 public class PlayerData extends Sprite {
     public int health;
 
-    public Vector2 velocity;
-    Vector2 pos = new Vector2();
+    public Vector2 vel=new Vector2();
     Vector2 accel = new Vector2();
     float jumpVelocity=10;
     float runAcceleration=20;
@@ -37,11 +36,13 @@ public class PlayerData extends Sprite {
     int state = SPAWN;
     float stateTime = 0;
     int dir = LEFT;
-    Map map;
+
+    GameLevel gameLevel;
 
 
-    public PlayerData(TextureRegion region){
+    public PlayerData(TextureRegion region, GameLevel gameLevel){
         super(region);
+        this.gameLevel=gameLevel;
     }
 
     public void update(float deltaTime){
@@ -49,15 +50,15 @@ public class PlayerData extends Sprite {
 
         accel.y=-GRAVITY;
         accel.scl(deltaTime);
-        velocity.add(accel.x,accel.y);
+        vel.add(accel.x,accel.y);
 
-        velocity.x*=DAMP;
-        if (velocity.x > MAX_VEL) velocity.x = MAX_VEL;
-        if (velocity.x < -MAX_VEL) velocity.x = -MAX_VEL;
+        vel.x*=DAMP;
+        if (vel.x > MAX_VEL) vel.x = MAX_VEL;
+        if (vel.x < -MAX_VEL) vel.x = -MAX_VEL;
 
-        velocity.scl(deltaTime);
+        vel.scl(deltaTime);
         tryMove();
-        velocity.scl(1/deltaTime);
+        vel.scl(1/deltaTime);
     }
 
     private void handleInputs(){
@@ -68,7 +69,7 @@ public class PlayerData extends Sprite {
                 || (Gdx.input.isTouched(1) && x1 > 416 && x1 < 480 && y0 < 64);*/
 
         if(Gdx.input.isKeyPressed(Input.Keys.W)){
-            velocity.y=jumpVelocity;
+            vel.y=jumpVelocity;
             state=JUMP;
         }
 
@@ -78,14 +79,59 @@ public class PlayerData extends Sprite {
             accel.x=dir*runAcceleration;
         }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.A)){
+        if(Gdx.input.isKeyPressed(Input.Keys.D)){
             state=RUN;
             dir=RIGHT;
             accel.x=dir*runAcceleration;
         }
+
+        tryMove();
     }
 
+    /**
+     * find bounding rectangle, adjust values of rectangle, and then copy x and y onto sprite.
+     */
     private void tryMove(){
+        Rectangle bounds = this.getBoundingRectangle();
+
+        bounds.x += vel.x;
+
+        Array<Rectangle> terrainArray=gameLevel.getTerrain();
+
+        for (int i = 0; i < terrainArray.size; i++) {
+            Rectangle terrain = terrainArray.get(i);
+            if (bounds.overlaps(terrain)) {
+                if (vel.x < 0) {
+                    bounds.x = terrain.x + terrain.width + 0.01f;
+                    System.out.println("overlap occured and we did sth about it");
+                }
+                else
+                    bounds.x = terrain.x - bounds.width - 0.01f;
+                vel.x = 0;
+            }
+        }
+
+        bounds.y += vel.y;
+
+        for (int i = 0; i < terrainArray.size; i++) {
+            Rectangle terrain=terrainArray.get(i);
+            if (bounds.overlaps(terrain)) {
+                if (vel.y < 0) {
+                    bounds.y = terrain.y + terrain.height + 0.01f;
+                    System.out.println("vertical overlap");
+                    if (state != DYING && state != SPAWN) state = Math.abs(accel.x) > 0.1f ? RUN : IDLE;
+                } else
+                    bounds.y = terrain.y - bounds.height - 0.01f;
+                vel.y = 0;
+            }
+        }
+
+
+        this.setX(bounds.x);
+        this.setY(bounds.y);
+        /**
+        pos.x = bounds.x - 0.2f;
+        pos.y = bounds.y;**/
 
     }
 }
