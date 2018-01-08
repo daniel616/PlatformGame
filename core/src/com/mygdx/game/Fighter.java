@@ -1,7 +1,6 @@
 package com.mygdx.game;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
@@ -12,8 +11,8 @@ import com.badlogic.gdx.utils.Array;
  * Created by Danel on 12/30/17.
  */
 
-public class PlayerData extends Sprite {
-    public int health;
+public class Fighter extends Sprite {
+    public int health=10;
 
     public Vector2 vel=new Vector2();
     Vector2 accel = new Vector2();
@@ -22,6 +21,8 @@ public class PlayerData extends Sprite {
     static float GRAVITY = 20.0f;
     static float MAX_VEL = 6f;
     static final float DAMP = 0.90f;
+    final float attackHeight;
+    final float attackWidth;
 
     static final int IDLE = 0;
     static final int RUN = 1;
@@ -38,15 +39,26 @@ public class PlayerData extends Sprite {
     int dir = LEFT;
 
     GameLevel gameLevel;
+    public TEAM team;
 
-
-    public PlayerData(TextureRegion region, GameLevel gameLevel){
-        super(region);
-        this.gameLevel=gameLevel;
+    public enum TEAM{
+        TEAM1,TEAM2
     }
 
+
+    public Fighter(TextureRegion region, GameLevel gameLevel){
+        super(region);
+        this.gameLevel=gameLevel;
+        this.attackHeight=this.getBoundingRectangle().getHeight();
+        this.attackWidth=this.getBoundingRectangle().getWidth();
+    }
+
+    /***
+     * TODO: Right now this does nothing
+     * @param deltaTime
+     */
     public void update(float deltaTime){
-        handleInputs();
+        tryMove();
 
         accel.y=-GRAVITY;
         accel.scl(deltaTime);
@@ -61,37 +73,38 @@ public class PlayerData extends Sprite {
         vel.scl(1/deltaTime);
     }
 
-    private void handleInputs(){
-        /*for touchscreens
-        boolean leftButton = (Gdx.input.isTouched(0) && x0 < 70) || (Gdx.input.isTouched(1) && x1 < 70);
-        boolean rightButton = (Gdx.input.isTouched(0) && x0 > 70 && x0 < 134) || (Gdx.input.isTouched(1) && x1 > 70 && x1 < 134);
-        boolean jumpButton = (Gdx.input.isTouched(0) && x0 > 416 && x0 < 480 && y0 < 64)
-                || (Gdx.input.isTouched(1) && x1 > 416 && x1 < 480 && y0 < 64);*/
+    public void takeDamage(int damage){
+        health-=damage;
+    }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.W)){
-            vel.y=jumpVelocity;
-            state=JUMP;
-        }
+    protected void jump(){
+        vel.y=jumpVelocity;
+        state=JUMP;
+    }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.A)){
-            state=RUN;
-            dir=LEFT;
-            accel.x=dir*runAcceleration;
-        }
+    protected void leftAccel(){
+        state=RUN;
+        dir=LEFT;
+        accel.x=dir*runAcceleration;
+    }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.D)){
-            state=RUN;
-            dir=RIGHT;
-            accel.x=dir*runAcceleration;
-        }
+    protected void rightAccel(){
+        state=RUN;
+        dir=RIGHT;
+        accel.x=dir*runAcceleration;
+    }
 
-        tryMove();
+    protected void attack(){
+        TextureRegion region = new TextureRegion(new Texture("data/mininicular (1).png"));
+        ZombieAttack attack = new ZombieAttack(region,this);
+        attack.setPosition(getX(),getY());
+        gameLevel.addAttack(attack);
     }
 
     /**
      * find bounding rectangle, adjust values of rectangle, and then copy x and y onto sprite.
      */
-    private void tryMove(){
+    protected void tryMove(){
         Rectangle bounds = this.getBoundingRectangle();
 
         bounds.x += vel.x;
@@ -103,7 +116,6 @@ public class PlayerData extends Sprite {
             if (bounds.overlaps(terrain)) {
                 if (vel.x < 0) {
                     bounds.x = terrain.x + terrain.width + 0.01f;
-                    System.out.println("overlap occured and we did sth about it");
                 }
                 else
                     bounds.x = terrain.x - bounds.width - 0.01f;
@@ -118,7 +130,6 @@ public class PlayerData extends Sprite {
             if (bounds.overlaps(terrain)) {
                 if (vel.y < 0) {
                     bounds.y = terrain.y + terrain.height + 0.01f;
-                    System.out.println("vertical overlap");
                     if (state != DYING && state != SPAWN) state = Math.abs(accel.x) > 0.1f ? RUN : IDLE;
                 } else
                     bounds.y = terrain.y - bounds.height - 0.01f;

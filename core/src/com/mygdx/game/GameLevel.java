@@ -3,7 +3,6 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
@@ -21,15 +20,25 @@ public class GameLevel {
      * Tracks contents of a level and updates them when told to do so.
      */
     private TiledMap map;
-    private PlayerData player;
+    private Array<Fighter> fighters;
     private Array<Sprite> spriteArray;
+    private Array<ZombieAttack> attacks;
     private TextureAtlas atlas;
 
-    /**could put this in constrcutor**/
+    /**could put this in constructor**/
     public GameLevel(String mapFileLocation){
+        attacks = new Array<ZombieAttack>();
+        fighters=new Array<Fighter>();
         map=new TmxMapLoader().load(mapFileLocation);
         atlas= new TextureAtlas(Gdx.files.internal("data/zombies.txt"));
         processMapMetadata();
+
+    }
+
+    public LevelRenderer generateRenderer(){
+        spriteArray=new Array<Sprite>();
+        spriteArray.addAll(fighters);
+        return new LevelRenderer(map,spriteArray);
     }
 
     public Array<Rectangle> getTerrain(){
@@ -38,8 +47,56 @@ public class GameLevel {
         for(MapObject object: terrain){
             terrainArray.add(((RectangleMapObject)object).getRectangle());
         }
-        System.out.println("terrainArray size"+terrainArray.size);
         return terrainArray;
+    }
+
+    public void addAttack(ZombieAttack attack){
+        spriteArray.add(attack);
+        attacks.add(attack);
+    }
+
+    public void update(float deltaTime){
+        for(Fighter fighter:fighters){
+            fighter.update(deltaTime);
+        }
+        for (ZombieAttack attack:attacks){
+            attack.update(deltaTime);
+        }
+        checkAttacks();
+        checkRemovable();
+    }
+
+    public void dispose() {
+        atlas.dispose();
+        map.dispose();
+    }
+
+    private void checkRemovable(){
+        for(ZombieAttack attack: attacks){
+            if(attack.shouldRemove()){
+                attacks.removeValue(attack,true);
+                spriteArray.removeValue(attack,true);
+            }
+        }
+
+        for(Fighter fighter: fighters){
+            if(fighter.health<=0){
+                fighters.removeValue(fighter,true);
+                spriteArray.removeValue(fighter,true);
+
+            }
+        }
+    }
+
+    private void checkAttacks(){
+        for(ZombieAttack attack:attacks){
+            for(Fighter fighter:fighters){
+                if((attack.getRectangle().overlaps(fighter.getBoundingRectangle()))
+                        &&(attack.getTeam()!=(fighter.team))){
+                    fighter.takeDamage(3);
+                }
+            }
+        }
     }
 
     private void processMapMetadata() {
@@ -69,24 +126,10 @@ public class GameLevel {
 
 
             if (name.equals("player")) {
-                player = new PlayerData(atlas.findRegion("male/Attack (6)"),this);
-                player.setPosition(rectangle.x, rectangle.y);
+                Fighter fighter = new Player(atlas.findRegion("male/Attack (6)"),this);
+                fighter.setPosition(rectangle.x, rectangle.y);
+                fighters.add(fighter);
             }
         }
-    }
-
-    public void update(float deltaTime){
-        player.update(deltaTime);
-    }
-
-    public LevelRenderer generateRenderer(){
-        spriteArray=new Array<Sprite>();
-        spriteArray.add(player);
-        return new LevelRenderer(map,spriteArray);
-    }
-
-    public void dispose() {
-        atlas.dispose();
-        map.dispose();
     }
 }
