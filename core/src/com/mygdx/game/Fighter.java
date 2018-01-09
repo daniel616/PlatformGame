@@ -49,8 +49,10 @@ public class Fighter extends Sprite {
     public Fighter(TextureRegion region, GameLevel gameLevel){
         super(region);
         this.gameLevel=gameLevel;
+
         this.attackHeight=this.getBoundingRectangle().getHeight();
         this.attackWidth=this.getBoundingRectangle().getWidth();
+        setSize(50,80);
     }
 
     /***
@@ -97,6 +99,7 @@ public class Fighter extends Sprite {
     protected void attack(){
         TextureRegion region = new TextureRegion(new Texture("data/mininicular (1).png"));
         ZombieAttack attack = new ZombieAttack(region,this);
+        attack.setSize(50,80);
         attack.setPosition(getX(),getY());
         gameLevel.addAttack(attack);
     }

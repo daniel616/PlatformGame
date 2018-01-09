@@ -11,7 +11,7 @@ import com.badlogic.gdx.math.Rectangle;
 public class ZombieAttack extends Sprite {
     private Rectangle boundingRectangle;
     private Fighter attackSource;
-    private float decayTime=1.0f;
+    private float decayTime=0.2f;
     private Fighter.TEAM team;
     private boolean shouldRemove=false;
 

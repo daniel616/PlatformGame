@@ -11,7 +11,7 @@ public class Level1 implements Screen {
     LevelRenderer levelRenderer;
 
     public Level1(){
-        levelData=new GameLevel("data/great_map.tmx");
+        levelData=new GameLevel("data/legitMap.tmx");
         levelRenderer=levelData.generateRenderer();
     }
 

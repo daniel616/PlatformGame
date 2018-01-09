@@ -1,8 +1,10 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
@@ -126,10 +128,21 @@ public class GameLevel {
 
 
             if (name.equals("player")) {
-                Fighter fighter = new Player(atlas.findRegion("male/Attack (6)"),this);
+                TextureRegion region=atlas.findRegion("male/Attack (6)");
+
+                Fighter fighter = new Player(region,this);
                 fighter.setPosition(rectangle.x, rectangle.y);
                 fighters.add(fighter);
             }
+
+            if (name.equals("enemy")) {
+                Fighter fighter = new Fighter(atlas.findRegion("female/Attack (6)"),this);
+                fighter.setPosition(rectangle.x, rectangle.y);
+                fighter.setSize(50,50);
+                fighters.add(fighter);
+            }
+
+
         }
     }
 }
