@@ -1,8 +1,6 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
@@ -22,15 +20,14 @@ public class GameLevel {
      * Tracks contents of a level and updates them when told to do so.
      */
     private TiledMap map;
-    private Array<Fighter> fighters;
-    private Array<Sprite> spriteArray;
-    private Array<ZombieAttack> attacks;
+    private Array<AdvancedSprite> fighters;
+    private Array<Attack> attacks;
     private TextureAtlas atlas;
 
     /**could put this in constructor**/
     public GameLevel(String mapFileLocation){
-        attacks = new Array<ZombieAttack>();
-        fighters=new Array<Fighter>();
+        fighters=new Array<AdvancedSprite>();
+        attacks= new Array<Attack>();
         map=new TmxMapLoader().load(mapFileLocation);
         atlas= new TextureAtlas(Gdx.files.internal("data/zombies.txt"));
         processMapMetadata();
@@ -38,9 +35,7 @@ public class GameLevel {
     }
 
     public LevelRenderer generateRenderer(){
-        spriteArray=new Array<Sprite>();
-        spriteArray.addAll(fighters);
-        return new LevelRenderer(map,spriteArray);
+        return new LevelRenderer(map,fighters);
     }
 
     public Array<Rectangle> getTerrain(){
@@ -52,20 +47,11 @@ public class GameLevel {
         return terrainArray;
     }
 
-    public void addAttack(ZombieAttack attack){
-        spriteArray.add(attack);
-        attacks.add(attack);
-    }
-
     public void update(float deltaTime){
-        for(Fighter fighter:fighters){
-            fighter.update(deltaTime);
+        for(AdvancedSprite advancedSprite :fighters){
+            advancedSprite.update(deltaTime);
         }
-        for (ZombieAttack attack:attacks){
-            attack.update(deltaTime);
-        }
-        checkAttacks();
-        checkRemovable();
+        removeRemovables();
     }
 
     public void dispose() {
@@ -73,33 +59,25 @@ public class GameLevel {
         map.dispose();
     }
 
-    private void checkRemovable(){
-        for(ZombieAttack attack: attacks){
-            if(attack.shouldRemove()){
-                attacks.removeValue(attack,true);
-                spriteArray.removeValue(attack,true);
-            }
-        }
 
-        for(Fighter fighter: fighters){
-            if(fighter.health<=0){
-                fighters.removeValue(fighter,true);
-                spriteArray.removeValue(fighter,true);
+    public Array<Attack> getAttacks(){
+        return attacks;
+    }
 
+    public void addAttack(Attack attack){
+        fighters.add(attack);
+        attacks.add(attack);
+    }
+
+    private void removeRemovables(){
+        for(AdvancedSprite advancedSprite : fighters){
+            if(advancedSprite.shouldRemove){
+                fighters.removeValue(advancedSprite,true);
             }
         }
     }
 
-    private void checkAttacks(){
-        for(ZombieAttack attack:attacks){
-            for(Fighter fighter:fighters){
-                if((attack.getRectangle().overlaps(fighter.getBoundingRectangle()))
-                        &&(attack.getTeam()!=(fighter.team))){
-                    fighter.takeDamage(3);
-                }
-            }
-        }
-    }
+
 
     private void processMapMetadata() {
         // Load music
@@ -114,7 +92,6 @@ public class GameLevel {
 
         MapObjects special = map.getLayers().get("special").getObjects();
 
-
         for (MapObject object : special) {
             String name = object.getName();
             String[] parts = name.split("[.]");
@@ -126,23 +103,20 @@ public class GameLevel {
             System.out.println("- position: (" + rectangle.x + ", " + rectangle.y + ")");
             System.out.println("- size: (" + rectangle.width + ", " + rectangle.height + ")");
 
-
             if (name.equals("player")) {
                 TextureRegion region=atlas.findRegion("male/Attack (6)");
 
-                Fighter fighter = new Player(region,this);
-                fighter.setPosition(rectangle.x, rectangle.y);
-                fighters.add(fighter);
+                AdvancedSprite advancedSprite = new Player(region,this);
+                advancedSprite.setPosition(rectangle.x, rectangle.y);
+                fighters.add(advancedSprite);
             }
 
             if (name.equals("enemy")) {
-                Fighter fighter = new Fighter(atlas.findRegion("female/Attack (6)"),this);
-                fighter.setPosition(rectangle.x, rectangle.y);
-                fighter.setSize(50,50);
-                fighters.add(fighter);
+                AdvancedSprite advancedSprite = new AdvancedSprite(atlas.findRegion("female/Attack (6)"),this);
+                advancedSprite.setPosition(rectangle.x, rectangle.y);
+                advancedSprite.setSize(50,50);
+                fighters.add(advancedSprite);
             }
-
-
         }
     }
 }

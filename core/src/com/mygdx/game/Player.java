@@ -2,16 +2,23 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 /**
  * Created by Danel on 1/8/18.
  */
 
-public class Player extends Fighter {
+public class Player extends AdvancedSprite {
     public Player(TextureRegion region, GameLevel gameLevel) {
         super(region, gameLevel);
         this.team=TEAM.TEAM1;
+    }
+
+    @Override
+    public void update(float deltaTime){
+        handleInputs();
+        super.update(deltaTime);
     }
 
     private void handleInputs(){
@@ -38,9 +45,14 @@ public class Player extends Fighter {
         }
     }
 
-    @Override
-    public void update(float deltaTime){
-        handleInputs();
-        super.update(deltaTime);
+    private void attack(){
+        TextureRegion region = new TextureRegion(new Texture("data/mininicular (1).png"));
+        Attack attack = new Attack(region, this);
+        attack.setSize(50,80);
+        int intDir= dir ? 1:-1;
+        attack.setPosition(getX()+intDir*20,getY());
+        getLevel().addAttack(attack);
     }
+
+
 }

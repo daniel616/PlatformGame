@@ -9,10 +9,14 @@ import com.badlogic.gdx.utils.Array;
 
 /**
  * Created by Danel on 12/30/17.
+ *
+ * If this was my 308 class, I'd probably make this class only concerned with tracking physics and directions, and
+ * put the health and attack functionality somewhere else. But this works for me.
  */
 
-public class Fighter extends Sprite {
+public class AdvancedSprite extends Sprite {
     public int health=10;
+    public boolean shouldRemove=false;
 
     public Vector2 vel=new Vector2();
     Vector2 accel = new Vector2();
@@ -36,9 +40,9 @@ public class Fighter extends Sprite {
 
     int state = SPAWN;
     float stateTime = 0;
-    int dir = LEFT;
+    boolean dir=true;
 
-    GameLevel gameLevel;
+    private GameLevel gameLevel;
     public TEAM team;
 
     public enum TEAM{
@@ -46,7 +50,7 @@ public class Fighter extends Sprite {
     }
 
 
-    public Fighter(TextureRegion region, GameLevel gameLevel){
+    public AdvancedSprite(TextureRegion region, GameLevel gameLevel){
         super(region);
         this.gameLevel=gameLevel;
 
@@ -60,6 +64,22 @@ public class Fighter extends Sprite {
      * @param deltaTime
      */
     public void update(float deltaTime){
+        applyPhysics(deltaTime);
+        checkAttacks();
+        checkHealth();
+    }
+
+    public void takeDamage(int damage){
+        health-=damage;
+    }
+
+    public void checkHealth(){
+        if(health<=0){
+            shouldRemove=true;
+        }
+    }
+
+    private void applyPhysics(float deltaTime){
         tryMove();
 
         accel.y=-GRAVITY;
@@ -75,10 +95,6 @@ public class Fighter extends Sprite {
         vel.scl(1/deltaTime);
     }
 
-    public void takeDamage(int damage){
-        health-=damage;
-    }
-
     protected void jump(){
         vel.y=jumpVelocity;
         state=JUMP;
@@ -86,22 +102,24 @@ public class Fighter extends Sprite {
 
     protected void leftAccel(){
         state=RUN;
-        dir=LEFT;
-        accel.x=dir*runAcceleration;
+        boolean prevDir=dir;
+        dir=false;
+        int intDir=dir ? 1 : -1 ;
+        accel.x= intDir*runAcceleration;
+        flip((prevDir!=dir),false);
     }
 
     protected void rightAccel(){
         state=RUN;
-        dir=RIGHT;
-        accel.x=dir*runAcceleration;
+        boolean prevDir=dir;
+        dir=true;
+        int intDir=dir ? 1 : -1 ;
+        accel.x= intDir*runAcceleration;
+        flip((prevDir!=dir),false);
     }
 
-    protected void attack(){
-        TextureRegion region = new TextureRegion(new Texture("data/mininicular (1).png"));
-        ZombieAttack attack = new ZombieAttack(region,this);
-        attack.setSize(50,80);
-        attack.setPosition(getX(),getY());
-        gameLevel.addAttack(attack);
+    protected GameLevel getLevel(){
+        return  gameLevel;
     }
 
     /**
@@ -146,6 +164,17 @@ public class Fighter extends Sprite {
         /**
         pos.x = bounds.x - 0.2f;
         pos.y = bounds.y;**/
+    }
 
+
+
+    private void checkAttacks(){
+        for(Attack attack:getLevel().getAttacks()){
+            if((attack.getRectangle().overlaps(getBoundingRectangle()))
+                    &&(attack.getTeam()!=(team)))
+            {
+                attack.affectSprite(this);
+            }
+        }
     }
 }

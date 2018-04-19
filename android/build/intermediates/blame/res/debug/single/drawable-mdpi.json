@@ -1,5 +1,9 @@
 [
     {
+        "merged": "/Users/danielli/AndroidStudioProjects/PlatformGame/android/build/intermediates/res/merged/debug/drawable-mdpi/ic_launcher.png",
+        "source": "/Users/danielli/AndroidStudioProjects/PlatformGame/android/res/drawable-mdpi/ic_launcher.png"
+    },
+    {
         "merged": "/Users/Danel/AndroidProjects/PlatformGame/android/build/intermediates/res/merged/debug/drawable-mdpi/ic_launcher.png",
         "source": "/Users/Danel/AndroidProjects/PlatformGame/android/res/drawable-mdpi/ic_launcher.png"
     }

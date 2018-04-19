@@ -29,5 +29,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="gdx-1.9.8" level="project" />
     <orderEntry type="library" exported="" name="gdx-ai-1.8.0" level="project" />
+    <orderEntry type="library" exported="" name="commons-math3-3.6.1" level="project" />
   </component>
 </module>
