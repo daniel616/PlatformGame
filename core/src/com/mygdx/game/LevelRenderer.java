@@ -9,6 +9,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
+import com.mygdx.game.gameEntities.AdvancedSprite;
 
 /**
  * Created by Danel on 12/30/17.

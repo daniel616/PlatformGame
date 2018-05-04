@@ -1,7 +1,9 @@
-package com.mygdx.game;
+package com.mygdx.game.gameEntities;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
+import com.mygdx.game.GameLevel;
+import com.mygdx.game.gameEntities.AdvancedSprite;
 
 /**
  * Created by Danel on 1/8/18.

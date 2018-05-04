@@ -10,6 +10,9 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
+import com.mygdx.game.gameEntities.AdvancedSprite;
+import com.mygdx.game.gameEntities.Attack;
+import com.mygdx.game.gameEntities.Player;
 
 /**
  * Created by Danel on 12/30/17.

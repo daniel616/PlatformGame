@@ -1,24 +1,32 @@
-package com.mygdx.game;
+package com.mygdx.game.gameEntities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 /**
- * Created by Danel on 1/8/18.
+ * Created by danielli on 4/19/18.
  */
 
-public class Player extends AdvancedSprite {
-    public Player(TextureRegion region, GameLevel gameLevel) {
-        super(region, gameLevel);
-        this.team=TEAM.TEAM1;
+public class Player1 implements Actor{
+    private float jumpVel=10;
+    private float runAccel=3.0f;
+    private boolean shouldRemove;
+
+    private PhysicsTracker physicsSprite;
+
+    @Override
+    public void update(float deltaTime) {
+        handleInputs();
     }
 
     @Override
-    public void update(float deltaTime){
-        handleInputs();
-        super.update(deltaTime);
+    public boolean shouldRemove() {
+        return shouldRemove;
+    }
+
+    @Override
+    public void setRemove(boolean remove) {
+        shouldRemove=remove;
     }
 
     private void handleInputs(){
@@ -29,30 +37,19 @@ public class Player extends AdvancedSprite {
                 || (Gdx.input.isTouched(1) && x1 > 416 && x1 < 480 && y0 < 64);*/
 
         if(Gdx.input.isKeyPressed(Input.Keys.W)){
-            jump();
+            physicsSprite.jump(jumpVel);
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.A)){
-            leftAccel();
+            physicsSprite.leftAccel(runAccel);
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.D)){
-            rightAccel();
+            physicsSprite.rightAccel(runAccel);
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
-            attack();
+            //attack();
         }
     }
-
-    private void attack(){
-        TextureRegion region = new TextureRegion(new Texture("data/mininicular (1).png"));
-        Attack attack = new Attack(region, this);
-        attack.setSize(50,80);
-        int intDir= dir ? 1:-1;
-        attack.setPosition(getX()+intDir*20,getY());
-        getLevel().addAttack(attack);
-    }
-
-
 }
